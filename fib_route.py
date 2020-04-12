@@ -8,7 +8,7 @@ class FibRoute:
     def prefix(self):
         return self._prefix
 
-    def __repr__(self):
+    def __str__(self):
         rep_str = f"{self._prefix} -> "
         sorted_nexthops = sorted(self._nexthops)
         first = True

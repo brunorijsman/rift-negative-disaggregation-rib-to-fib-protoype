@@ -30,8 +30,7 @@ class RibRoute:
     def set_computed_nexthops(self, computed_nexthops):
         self._computed_nexthops = computed_nexthops
 
-    # TODO: __repr__ -> __str__
-    def __repr__(self):
+    def __str__(self):
         rep_str = f"{self._prefix} -> "
         all_nexthops = []
         for positive_nexthop in self._positive_nexthops:

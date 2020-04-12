@@ -49,7 +49,7 @@ class Rib:
             return self._routes[prefix]
         return None
 
-    def __repr__(self):
+    def __str__(self):
         rep_str = ""
         for prefix in self._routes:
             rep_str += f"{self._routes[prefix]}\n"

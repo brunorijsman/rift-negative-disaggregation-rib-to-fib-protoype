@@ -1,6 +1,6 @@
-from fib_route import FibRoute
+from pytricia import PyTricia   # pylint:disable=no-name-in-module
 
-from pytricia import PyTricia
+from fib_route import FibRoute
 
 class Fib:
 
@@ -18,11 +18,10 @@ class Fib:
     def get_route(self, prefix):
         if self._routes.has_key(prefix):
             return self._routes[prefix]
-        else:
-            return None
+        return None
 
-    def __repr__(self):
-        str = ""
+    def __str__(self):
+        repr_str = ""
         for prefix in self._routes:
-            str +=  f"{self._routes[prefix]}\n"
-        return str
+            repr_str += f"{self._routes[prefix]}\n"
+        return repr_str

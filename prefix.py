@@ -7,6 +7,6 @@ class Prefix:
         self._address = ipv4_network.network_address
         self._prefix_len = ipv4_network.prefixlen
 
-    def __repr__(self):
+    def __str__(self):
         return str(self._address) + '/' + str(self._prefix_len)
         
