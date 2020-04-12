@@ -2,7 +2,7 @@ class FibRoute:
 
     def __init__(self, prefix, nexthops):
         self._prefix = prefix
-        self._nexthops = nexthops
+        self._nexthops = set(nexthops)
 
     @property
     def prefix(self):

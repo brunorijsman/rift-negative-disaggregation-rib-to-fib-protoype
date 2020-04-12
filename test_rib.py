@@ -47,7 +47,9 @@ def test_get_repr():
 # The "prop" test cases test the propagation of routes from the RIB to the FIB, translating
 # negative nexthops in parent routes into complementary positive nexthops in child routes.
 
-def test_prop_one_route_positive():
+def test_prop_one_route_pos():
+
+    # Add a single route with only positive next-hops
 
     fib = Fib()
     rib = Rib(fib)
@@ -68,7 +70,9 @@ def test_prop_one_route_positive():
     # The corresponding route should be deleted from the FIB.
     assert fib.__repr__() == ("")
 
-def test_prop_parent_child_routes_positive():
+def test_prop_parent_pos_child_pos():
+
+    # Add a parent aggregate and a child more specific, each with only positive next-hops
 
     fib = Fib()
     rib = Rib(fib)
@@ -101,3 +105,45 @@ def test_prop_parent_child_routes_positive():
 
     # The corresponding route should be deleted from the FIB.
     assert fib.__repr__() == ""
+
+
+def test_prop_parent_pos_child_neg():
+
+    # Add a parent aggregate with positive nexthops and a child negative with a negative nexthop
+
+    fib = Fib()
+    rib = Rib(fib)
+
+    # Adding the route: slide 56 in Pascal's "negative disaggregation" presentation.
+
+    # Install two routes into the RIB: one parent aggregate with four ECMP positive nexthops, and
+    # one child more specific with one negative nexthop.
+    # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
+    # 10.0.0.0/16 -> ~nh1
+    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])
+    rib.put_route("10.0.0.0/16", [], ["nh1"])
+    assert rib.__repr__() == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
+                              "10.0.0.0/16 -> ~nh1\n")
+
+    # The FIB should contain:
+    # (1) the same parent aggregate route.
+    # (2) the more specific child route, whose negative nexthop has been translated into 
+    #     complementary positive nexthops.
+    # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
+    # 10.0.0.0/16 -> nh2, nh3, nh4
+    assert fib.__repr__() == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
+                              "10.0.0.0/16 -> nh2, nh3, nh4\n")
+
+    # # Delete the parent route from the RIB.
+    # rib.del_route("1.2.0.0/16")
+    # assert rib.__repr__() == "1.2.3.0/24 -> nh3, nh4\n"
+
+    # # The corresponding route should be deleted from the FIB.
+    # assert fib.__repr__() == "1.2.3.0/24 -> nh3, nh4\n"
+
+    # # Delete the child route from the RIB.
+    # rib.del_route("1.2.3.0/24")
+    # assert rib.__repr__() == ""
+
+    # # The corresponding route should be deleted from the FIB.
+    # assert fib.__repr__() == ""

@@ -1,21 +1,37 @@
+
 class RibRoute:
 
     def __init__(self, prefix, positive_nexthops, negative_nexthops):
         self._prefix = prefix
-        self._positive_nexthops = positive_nexthops
-        self._negative_nexthops = negative_nexthops
-        self._computed_nexthops = None     # None means "not computed yet"  TODO: need it?
+        self._positive_nexthops = set(positive_nexthops)
+        self._negative_nexthops = set(negative_nexthops)
+        self._computed_nexthops = None     # None means "not computed yet"
 
     @property
     def prefix(self):
         return self._prefix
 
     # TODO: unit test
+    @property
+    def positive_nexthops(self):
+        return self._positive_nexthops
+
+    # TODO: unit test
+    @property
+    def negative_nexthops(self):
+        return self._negative_nexthops
+
+    # TODO: unit test
+    @property
+    def computed_nexthops(self):
+        return self._computed_nexthops
+
+    # TODO: unit test
     def set_computed_nexthops(self, computed_nexthops):
         self._computed_nexthops = computed_nexthops
 
     def __repr__(self):
-        str = f"{self._prefix} -> "
+        rep_str = f"{self._prefix} -> "
         all_nexthops = []
         for positive_nexthop in self._positive_nexthops:
             all_nexthops.append((positive_nexthop, True))
@@ -27,9 +43,9 @@ class RibRoute:
             if first:
                 first = False
             else:
-                str += ", "
+                rep_str += ", "
             if is_positive:
-                str += nexthops
+                rep_str += nexthops
             else:
-                str += "~" + nexthops
-        return str
+                rep_str += "~" + nexthops
+        return rep_str
