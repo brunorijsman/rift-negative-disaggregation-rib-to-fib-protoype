@@ -1,7 +1,10 @@
 {
     "python.pythonPath": "env/bin/python3.7",
     "cSpell.words": [
+        "pylint",
         "pytest",
         "pytricia"
-    ]
+    ],
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
 }

@@ -4,11 +4,15 @@ class RibRoute:
         self._prefix = prefix
         self._positive_nexthops = positive_nexthops
         self._negative_nexthops = negative_nexthops
-        self._computed_nexthops = None     # None means "not computed yet"
+        self._computed_nexthops = None     # None means "not computed yet"  TODO: need it?
 
     @property
     def prefix(self):
         return self._prefix
+
+    # TODO: unit test
+    def set_computed_nexthops(self, computed_nexthops):
+        self._computed_nexthops = computed_nexthops
 
     def __repr__(self):
         str = f"{self._prefix} -> "
