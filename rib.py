@@ -4,7 +4,8 @@ from pytricia import PyTricia
 
 class Rib:
 
-    def __init__(self):
+    def __init__(self, fib):
+        self._fib = fib
         # Since this prototype only support a single route per destination, we don't bother having
         # any Destination class.
         self._routes = PyTricia()
