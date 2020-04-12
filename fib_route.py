@@ -9,13 +9,13 @@ class FibRoute:
         return self._prefix
 
     def __repr__(self):
-        str = f"{self._prefix} -> "
+        rep_str = f"{self._prefix} -> "
         sorted_nexthops = sorted(self._nexthops)
         first = True
         for nexthops in sorted_nexthops:
             if first:
                 first = False
             else:
-                str += ", "
-            str += nexthops
-        return str
+                rep_str += ", "
+            rep_str += nexthops
+        return rep_str

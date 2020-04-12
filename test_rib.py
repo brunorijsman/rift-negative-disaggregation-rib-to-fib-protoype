@@ -114,7 +114,7 @@ def test_prop_parent_pos_child_neg():
     fib = Fib()
     rib = Rib(fib)
 
-    # Adding the route: slide 56 in Pascal's "negative disaggregation" presentation.
+    # Adding the routes: slide 56 in Pascal's "negative disaggregation" presentation.
 
     # Install two routes into the RIB: one parent aggregate with four ECMP positive nexthops, and
     # one child more specific with one negative nexthop.
@@ -127,23 +127,24 @@ def test_prop_parent_pos_child_neg():
 
     # The FIB should contain:
     # (1) the same parent aggregate route.
-    # (2) the more specific child route, whose negative nexthop has been translated into 
+    # (2) the more specific child route, whose negative nexthop has been translated into
     #     complementary positive nexthops.
     # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
     # 10.0.0.0/16 -> nh2, nh3, nh4
     assert fib.__repr__() == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
                               "10.0.0.0/16 -> nh2, nh3, nh4\n")
 
-    # # Delete the parent route from the RIB.
-    # rib.del_route("1.2.0.0/16")
-    # assert rib.__repr__() == "1.2.3.0/24 -> nh3, nh4\n"
+    # Delete the parent route from the RIB.
+    rib.del_route("0.0.0.0/0")
+    assert rib.__repr__() == "10.0.0.0/16 -> ~nh1\n"
 
-    # # The corresponding route should be deleted from the FIB.
-    # assert fib.__repr__() == "1.2.3.0/24 -> nh3, nh4\n"
+    # The corresponding parent route should be deleted from the FIB. And the child route should not
+    # have an nexthops left (i.e. discard route).
+    assert fib.__repr__() == "10.0.0.0/16 -> \n"
 
-    # # Delete the child route from the RIB.
-    # rib.del_route("1.2.3.0/24")
-    # assert rib.__repr__() == ""
+    # Delete the child route from the RIB.
+    rib.del_route("10.0.0.0/16")
+    assert rib.__repr__() == ""
 
-    # # The corresponding route should be deleted from the FIB.
-    # assert fib.__repr__() == ""
+    # The corresponding route should be deleted from the FIB.
+    assert fib.__repr__() == ""
