@@ -1,6 +1,7 @@
 {
-    "python.pythonPath": "env/bin/python3.5",
+    "python.pythonPath": "env/bin/python3.7",
     "cSpell.words": [
-        "pytest"
+        "pytest",
+        "pytricia"
     ]
 }
