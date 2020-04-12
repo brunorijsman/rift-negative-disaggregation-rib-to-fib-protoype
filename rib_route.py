@@ -11,24 +11,20 @@ class RibRoute:
     def prefix(self):
         return self._prefix
 
-    # TODO: unit test
     @property
     def positive_nexthops(self):
         return self._positive_nexthops
 
-    # TODO: unit test
     @property
     def negative_nexthops(self):
         return self._negative_nexthops
 
-    # TODO: unit test
     @property
     def computed_nexthops(self):
         return self._computed_nexthops
 
-    # TODO: unit test
     def set_computed_nexthops(self, computed_nexthops):
-        self._computed_nexthops = computed_nexthops
+        self._computed_nexthops = set(computed_nexthops)
 
     def __str__(self):
         rep_str = f"{self._prefix} -> "
