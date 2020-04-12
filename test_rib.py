@@ -68,24 +68,36 @@ def test_prop_one_route_positive():
     # The corresponding route should be deleted from the FIB.
     assert fib.__repr__() == ("")
 
-# def prop_parent_child_routes_positive():
+def test_prop_parent_child_routes_positive():
 
-#     fib = Fib()
-#     rib = Rib(fib)
+    fib = Fib()
+    rib = Rib(fib)
 
-#     # Install two routes into the RIB: one parent aggregate and a child more specific route that
-#     # points to a different nexthop. We are only using positive nexthops.
-#     # 1.2.3.0/24 -> nh1, nh2
-#     rib.put_route("1.2.3.0/24", ["nh1", "nh2"])
-#     assert rib.__repr__() == ("1.2.3.0/24 -> nh1, nh2\n")
+    # Install two routes into the RIB: one parent aggregate and a child more specific route that
+    # points to a different nexthop. We are only using positive nexthops.
+    # 1.2.0.0/16 -> nh1, nh2
+    # 1.2.3.0/24 -> nh3, nh4
+    rib.put_route("1.2.0.0/16", ["nh1", "nh2"])
+    rib.put_route("1.2.3.0/24", ["nh3", "nh4"])
+    assert rib.__repr__() == ("1.2.0.0/16 -> nh1, nh2\n"
+                              "1.2.3.0/24 -> nh3, nh4\n")
 
-#     # There should be a corresponding same route in the FIB:
-#     # 1.2.3.0/24 -> nh1, nh2
-#     assert fib.__repr__() == ("1.2.3.0/24 -> nh1, nh2\n")
+    # There should be the corresponding same routes in the FIB:
+    # 1.2.0.0/16 -> nh1, nh2
+    # 1.2.3.0/24 -> nh3, nh4
+    assert fib.__repr__() == ("1.2.0.0/16 -> nh1, nh2\n"
+                              "1.2.3.0/24 -> nh3, nh4\n")
 
-#     # Delete the route from the RIB.
-#     rib.del_route("1.2.3.0/24")
-#     assert rib.__repr__() == ("")
+    # Delete the parent route from the RIB.
+    rib.del_route("1.2.0.0/16")
+    assert rib.__repr__() == "1.2.3.0/24 -> nh3, nh4\n"
 
-#     # The corresponding route should be deleted from the FIB.
-#     assert fib.__repr__() == ("")
+    # The corresponding route should be deleted from the FIB.
+    assert fib.__repr__() == "1.2.3.0/24 -> nh3, nh4\n"
+
+    # Delete the child route from the RIB.
+    rib.del_route("1.2.3.0/24")
+    assert rib.__repr__() == ""
+
+    # The corresponding route should be deleted from the FIB.
+    assert fib.__repr__() == ""
