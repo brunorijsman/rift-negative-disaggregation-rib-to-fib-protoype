@@ -1,10 +1,10 @@
 class RibRoute:
 
-    def __init__(self, prefix, positive_next_hops, negative_next_hops):
+    def __init__(self, prefix, positive_nexthops, negative_nexthops):
         self._prefix = prefix
-        self._positive_next_hops = positive_next_hops
-        self._negative_next_hops = negative_next_hops
-        self._computed_next_hops = None     # None means "not computed yet"
+        self._positive_nexthops = positive_nexthops
+        self._negative_nexthops = negative_nexthops
+        self._computed_nexthops = None     # None means "not computed yet"
 
     @property
     def prefix(self):
@@ -12,20 +12,20 @@ class RibRoute:
 
     def __repr__(self):
         str = f"{self._prefix} -> "
-        all_next_hops = []
-        for positive_next_hop in self._positive_next_hops:
-            all_next_hops.append((positive_next_hop, True))
-        for negative_next_hop in self._negative_next_hops:
-            all_next_hops.append((negative_next_hop, False))
-        all_next_hops.sort()
+        all_nexthops = []
+        for positive_nexthop in self._positive_nexthops:
+            all_nexthops.append((positive_nexthop, True))
+        for negative_nexthop in self._negative_nexthops:
+            all_nexthops.append((negative_nexthop, False))
+        all_nexthops.sort()
         first = True
-        for (next_hops, is_positive) in all_next_hops:
+        for (nexthops, is_positive) in all_nexthops:
             if first:
                 first = False
             else:
                 str += ", "
             if is_positive:
-                str += next_hops
+                str += nexthops
             else:
-                str += "~" + next_hops
+                str += "~" + nexthops
         return str

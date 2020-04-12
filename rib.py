@@ -9,9 +9,11 @@ class Rib:
         # any Destination class.
         self._routes = PyTricia()
 
-    def put_route(prefix, positive_nexthops, negative_nexthops):
-        route = RibRoute(prefix, positive_next_hops, negative_next_hops)
-        pytricia[prefix] = Route
+    def put_route(self, prefix, positive_nexthops, negative_nexthops=None):
+        if negative_nexthops is None:
+            negative_nexthops = []
+        route = RibRoute(prefix, positive_nexthops, negative_nexthops)
+        self._routes[prefix] = route
 
     def del_route(self, prefix):
         if self._routes.has_key(prefix):
@@ -23,6 +25,8 @@ class Rib:
         else:
             return None
 
-    def dump(self):
+    def __repr__(self):
+        str = ""
         for prefix in self._routes:
-            print(f"{self._routes[prefix]}")
+            str +=  f"{self._routes[prefix]}\n"
+        return str
