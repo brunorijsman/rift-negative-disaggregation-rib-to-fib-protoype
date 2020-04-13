@@ -6,8 +6,14 @@ class Rib:
 
     def __init__(self, fib):
         self._fib = fib
-        # Since this prototype only support a single route per destination, we don't bother having
-        # any Destination class.
+        # 1. The real production code for the RIB (but not the FIB) needs Destination objects and
+        # Route objects to support multiple routes to the same destination (prefix): one per owner
+        # (e.g. south-SPF and north-SPF). This prototype only supports a single route per
+        # destination (prefix) to keep things simple and avoid distracting attention from the
+        # negative disaggregation algorithm.
+        # 2. The PyTricia code takes prefixes as strings. Not sure if this is the best choice
+        # for production code. I suspect it is better to accept prefixes as Prefix objects that
+        # have an internal binary representation.
         self._routes = PyTricia()
 
     def put_route(self, prefix, positive_nexthops, negative_nexthops=None):
@@ -56,28 +62,36 @@ class Rib:
         return rep_str
 
     def _recompute_nexthops(self, route):
+
         # If the route does not have any negative nexthops, there is no disaggregation to be done.
         if not route.negative_nexthops:
             return route.positive_nexthops
+
         # If the route does not have a parent route, there is no disaggregation to be done.
         parent_prefix = self._routes.parent(route.prefix)
         if parent_prefix is None:
             return route.positive_nexthops
+
         # Compute the complementary nexthops of the negative nexthops.
         parent_route = self._routes[parent_prefix]
         complementary_nexthops = parent_route.computed_nexthops.difference(route.negative_nexthops)
+
         # Combine the complementary nexthops with the positive nexthops.
         return route.positive_nexthops.union(complementary_nexthops)
 
     def _recompute_children_nexthops(self, child_prefixes):
+
         # Find all the child routes
         for child_prefix in child_prefixes:
             child_route = self._routes[child_prefix]
+
             # Recompute the computed nexthops for the child route.
             computed_nexthops = self._recompute_nexthops(child_route)
             child_route.set_computed_nexthops(computed_nexthops)
+
             # Update the child route in the FIB accordingly.
             self._fib.put_route(child_prefix, computed_nexthops)
+
             # Recursively visit all the child's children (i.e. grandchildren).
             grandchild_prefixes = self._routes.children(child_prefix)
             self._recompute_children_nexthops(grandchild_prefixes)
