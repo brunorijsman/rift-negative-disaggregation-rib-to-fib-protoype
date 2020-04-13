@@ -244,3 +244,52 @@ def test_prop_delete_nexthop_one_level():
 
     # The FIB must be empty.
     assert str(fib) == ""
+
+def test_prop_delete_nexthop_two_levels():
+
+    # Test slides 59 and 60 in Pascal's "negative disaggregation" presentation.
+    # Delete a nexthop from a parent route, and check that the computed complementary nexthops in
+    # the child route and the grandchild route.
+
+    fib = Fib()
+    rib = Rib(fib)
+
+    # Install the following three routes into the RIB:
+    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])    # Parent default route
+    rib.put_route("10.0.0.0/16", [], ["nh1"])                   # Child, negative nexthop
+    rib.put_route("10.0.10.0/24", [], ["nh2"])                  # Grandchild, negative nexthop
+
+    # The RIB must contain the following routes:
+    assert str(rib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
+                        "10.0.0.0/16 -> ~nh1\n"
+                        "10.0.10.0/24 -> ~nh2\n")
+
+    # # The FIB must contain the following routes:
+    # assert str(fib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
+    #                     "10.0.0.0/16 -> nh2, nh3, nh4\n"
+    #                     "10.1.0.0/16 -> nh1, nh2, nh3\n")
+
+    # # Delete nexthop nh2 from the parent route 0.0.0.0/0 (by replacing the route with a new one
+    # # that has the reduced set of nexthops).
+    # rib.put_route("0.0.0.0/0", ["nh1", "nh3", "nh4"])
+
+    # # The RIB must contain the following routes:
+    # assert str(rib) == ("0.0.0.0/0 -> nh1, nh3, nh4\n"      # nh2 is gone
+    #                     "10.0.0.0/16 -> ~nh1\n"
+    #                     "10.1.0.0/16 -> ~nh4\n")
+
+    # # The FIB must contain the following routes:
+    # assert str(fib) == ("0.0.0.0/0 -> nh1, nh3, nh4\n"      # nh2 is gone
+    #                     "10.0.0.0/16 -> nh3, nh4\n"         # computed nh2 is gone
+    #                     "10.1.0.0/16 -> nh1, nh3\n")        # computed nh2 is gone
+
+    # # Delete all routes from the RIB.
+    # rib.del_route("0.0.0.0/0")
+    # rib.del_route("10.0.0.0/16")
+    # rib.del_route("10.1.0.0/16")
+
+    # # The RIB must be empty.
+    # assert str(rib) == ""
+
+    # # The FIB must be empty.
+    # assert str(fib) == ""
