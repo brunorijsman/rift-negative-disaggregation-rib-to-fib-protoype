@@ -196,23 +196,19 @@ def test_prop_two_children():
     # The FIB must be empty.
     assert str(fib) == ""
 
-def test_prop_delete_nexthop():
+def test_prop_delete_nexthop_one_level():
 
     # Test slide 58 in Pascal's "negative disaggregation" presentation.
-
-    # Test slide 57 in Pascal's "negative disaggregation" presentation:
-    # Add a parent aggregate with positive nexthops and two children with negative nexthops.
+    # Delete a nexthop from a parent route, and check that the computed complementary nexthops in
+    # the child routes are properly updated.
 
     fib = Fib()
     rib = Rib(fib)
 
     # Install the following three routes into the RIB:
-    # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
-    # 10.0.0.0/16 -> ~nh1
-    # 10.1.0.0/16 -> ~nh4
-    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])
-    rib.put_route("10.0.0.0/16", [], ["nh1"])
-    rib.put_route("10.1.0.0/16", [], ["nh4"])
+    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])    # Parent default route
+    rib.put_route("10.0.0.0/16", [], ["nh1"])                   # First child, negative nexthop
+    rib.put_route("10.1.0.0/16", [], ["nh4"])                   # Second child, negative nexthop
 
     # The RIB must contain the following routes:
     assert str(rib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
