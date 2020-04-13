@@ -234,12 +234,13 @@ def test_prop_delete_nexthop_one_level():
                         "10.0.0.0/16 -> nh3, nh4\n"         # computed nh2 is gone
                         "10.1.0.0/16 -> nh1, nh3\n")        # computed nh2 is gone
 
-    # # Delete both remaining child routes from the RIB.
-    # rib.del_route("10.0.0.0/16")
-    # rib.del_route("10.1.0.0/16")
+    # Delete all routes from the RIB.
+    rib.del_route("0.0.0.0/0")
+    rib.del_route("10.0.0.0/16")
+    rib.del_route("10.1.0.0/16")
 
-    # # The RIB must be empty.
-    # assert str(rib) == ""
+    # The RIB must be empty.
+    assert str(rib) == ""
 
-    # # The FIB must be empty.
-    # assert str(fib) == ""
+    # The FIB must be empty.
+    assert str(fib) == ""
