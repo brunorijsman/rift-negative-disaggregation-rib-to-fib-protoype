@@ -293,3 +293,50 @@ def test_prop_delete_nexthop_two_levels():
 
     # The FIB must be empty.
     assert str(fib) == ""
+
+def test_prop_multiple_negative():
+
+    # Child routes have multiple negative nexthops.
+
+    fib = Fib()
+    rib = Rib(fib)
+
+    # Install the following three routes into the RIB:
+    rib.put_route("1.0.0.0/8", ["nh1", "nh2", "nh3", "nh4"])  # Parent aggregate route
+    rib.put_route("1.1.0.0/16", [], ["nh1", "nh2"])           # Child, 2 negative nexthops
+    rib.put_route("1.1.1.0/24", [], ["nh2", "nh3"])           # Grandchild, 2 negative nexthops
+
+    # The RIB must contain the following routes:
+    assert str(rib) == ("1.0.0.0/8 -> nh1, nh2, nh3, nh4\n"
+                        "1.1.0.0/16 -> ~nh1, ~nh2\n"
+                        "1.1.1.0/24 -> ~nh2, ~nh3\n")
+
+    # The FIB must contain the following routes:
+    assert str(fib) == ("1.0.0.0/8 -> nh1, nh2, nh3, nh4\n"
+                        "1.1.0.0/16 -> nh3, nh4\n"
+                        "1.1.1.0/24 -> nh4\n")
+
+    # Delete nexthop nh3 from the parent route 1.0.0.0/8 (by replacing the route with a new one
+    # that has the reduced set of nexthops).
+    rib.put_route("1.0.0.0/8", ["nh1", "nh2", "nh4"])
+
+    # The RIB must contain the following routes:
+    assert str(rib) == ("1.0.0.0/8 -> nh1, nh2, nh4\n"      # nh3 is gone
+                        "1.1.0.0/16 -> ~nh1, ~nh2\n"
+                        "1.1.1.0/24 -> ~nh2, ~nh3\n")
+
+    # The FIB must contain the following routes:
+    assert str(fib) == ("1.0.0.0/8 -> nh1, nh2, nh4\n"      # nh3 is gone
+                        "1.1.0.0/16 -> nh4\n"               # computed nh3 is gone
+                        "1.1.1.0/24 -> nh4\n")              # nothing changed (did not have nh3)
+
+    # Delete all routes from the RIB.
+    rib.del_route("1.0.0.0/8")
+    rib.del_route("1.1.0.0/16")
+    rib.del_route("1.1.1.0/24")
+
+    # The RIB must be empty.
+    assert str(rib) == ""
+
+    # The FIB must be empty.
+    assert str(fib) == ""
