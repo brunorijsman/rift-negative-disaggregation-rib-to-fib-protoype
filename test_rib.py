@@ -264,10 +264,10 @@ def test_prop_delete_nexthop_two_levels():
                         "10.0.0.0/16 -> ~nh1\n"
                         "10.0.10.0/24 -> ~nh2\n")
 
-    # # The FIB must contain the following routes:
-    # assert str(fib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
-    #                     "10.0.0.0/16 -> nh2, nh3, nh4\n"
-    #                     "10.1.0.0/16 -> nh1, nh2, nh3\n")
+    # The FIB must contain the following routes:
+    assert str(fib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
+                        "10.0.0.0/16 -> nh2, nh3, nh4\n"
+                        "10.0.10.0/24 -> nh3, nh4\n")
 
     # # Delete nexthop nh2 from the parent route 0.0.0.0/0 (by replacing the route with a new one
     # # that has the reduced set of nexthops).
