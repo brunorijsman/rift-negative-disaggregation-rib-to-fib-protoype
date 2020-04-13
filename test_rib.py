@@ -118,35 +118,33 @@ def test_prop_one_child():
 
     # Install two routes into the RIB: one parent aggregate with four ECMP positive nexthops, and
     # one child more specific with one negative nexthop.
-    # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
-    # 10.0.0.0/16 -> ~nh1
-    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])
-    rib.put_route("10.0.0.0/16", [], ["nh1"])
+    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])    # Parent default route
+    rib.put_route("10.0.0.0/16", [], ["nh1"])                   # Child route with negative nexthop
+
+    # The RIB must contain the following routes:
     assert str(rib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
                         "10.0.0.0/16 -> ~nh1\n")
 
-    # The FIB should contain:
-    # (1) the same parent aggregate route.
-    # (2) the more specific child route, whose negative nexthop has been translated into
-    #     complementary positive nexthops.
-    # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
-    # 10.0.0.0/16 -> nh2, nh3, nh4
-    assert str(fib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
-                        "10.0.0.0/16 -> nh2, nh3, nh4\n")
+    # The RIB must contain the following routes:
+    assert str(fib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"     # Parent route, same as RIB
+                        "10.0.0.0/16 -> nh2, nh3, nh4\n")       # Child route, complementary nhs
 
     # Delete the parent route from the RIB.
     rib.del_route("0.0.0.0/0")
+
+    # The RIB must contain the following routes:
     assert str(rib) == "10.0.0.0/16 -> ~nh1\n"
 
-    # The corresponding parent route should be deleted from the FIB. And the child route should not
-    # have an nexthops left (i.e. discard route).
+    # The FIB must contain the following routes:
     assert str(fib) == "10.0.0.0/16 -> \n"
 
     # Delete the child route from the RIB.
     rib.del_route("10.0.0.0/16")
+
+    # The RIB must be empty.
     assert str(rib) == ""
 
-    # The corresponding route should be deleted from the FIB.
+    # The FIB must be empty.
     assert str(fib) == ""
 
 def test_prop_two_children():
