@@ -278,18 +278,18 @@ def test_prop_delete_nexthop_two_levels():
                         "10.0.0.0/16 -> ~nh1\n"
                         "10.0.10.0/24 -> ~nh2\n")
 
-    # # The FIB must contain the following routes:
-    # assert str(fib) == ("0.0.0.0/0 -> nh1, nh3, nh4\n"      # nh2 is gone
-    #                     "10.0.0.0/16 -> nh3, nh4\n"         # computed nh2 is gone
-    #                     "10.1.0.0/16 -> nh1, nh3\n")        # computed nh2 is gone
+    # The FIB must contain the following routes:
+    assert str(fib) == ("0.0.0.0/0 -> nh1, nh2, nh4\n"      # nh3 is gone
+                        "10.0.0.0/16 -> nh2, nh4\n"         # computed nh3 is gone
+                        "10.0.10.0/24 -> nh4\n")            # computed nh3 is gone
 
-    # # Delete all routes from the RIB.
-    # rib.del_route("0.0.0.0/0")
-    # rib.del_route("10.0.0.0/16")
-    # rib.del_route("10.1.0.0/16")
+    # Delete all routes from the RIB.
+    rib.del_route("0.0.0.0/0")
+    rib.del_route("10.0.0.0/16")
+    rib.del_route("10.0.10.0/24")
 
-    # # The RIB must be empty.
-    # assert str(rib) == ""
+    # The RIB must be empty.
+    assert str(rib) == ""
 
-    # # The FIB must be empty.
-    # assert str(fib) == ""
+    # The FIB must be empty.
+    assert str(fib) == ""
