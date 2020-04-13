@@ -25,11 +25,10 @@ class Rib:
         self._routes[prefix] = route
 
         # Recompute the computed nexthops.
-        computed_nexthops = self._recompute_nexthops(route)
-        route.set_computed_nexthops(computed_nexthops)
+        self._recompute_nexthops(route)
 
         # Put the corresponding route with the computed effective nexthops in the FIB.
-        self._fib.put_route(prefix, computed_nexthops)
+        self._fib.put_route(prefix, route.computed_nexthops)
 
     def del_route(self, prefix):
 
@@ -63,21 +62,35 @@ class Rib:
 
     def _recompute_nexthops(self, route):
 
-        # If the route does not have any negative nexthops, there is no disaggregation to be done.
         if not route.negative_nexthops:
-            return route.positive_nexthops
 
-        # If the route does not have a parent route, there is no disaggregation to be done.
-        parent_prefix = self._routes.parent(route.prefix)
-        if parent_prefix is None:
-            return route.positive_nexthops
+            # The route does not have any negative nexthops; there is no disaggregation to be done.
+            computed_nexthops = route.positive_nexthops
 
-        # Compute the complementary nexthops of the negative nexthops.
-        parent_route = self._routes[parent_prefix]
-        complementary_nexthops = parent_route.computed_nexthops.difference(route.negative_nexthops)
+        else:
 
-        # Combine the complementary nexthops with the positive nexthops.
-        return route.positive_nexthops.union(complementary_nexthops)
+            parent_prefix = self._routes.parent(route.prefix)
+            if parent_prefix is None:
+
+                # The route does not have a parent route, there is no disaggregation to be done.
+                computed_nexthops = route.positive_nexthops
+
+            else:
+
+                # Compute the complementary nexthops of the negative nexthops.
+                parent_route = self._routes[parent_prefix]
+                complementary_nexthops = \
+                    parent_route.computed_nexthops.difference(route.negative_nexthops)
+
+                # Combine the complementary nexthops with the positive nexthops.
+                computed_nexthops = route.positive_nexthops.union(complementary_nexthops)
+
+        # Store the computed nexthops in the route
+        route.set_computed_nexthops(computed_nexthops)
+
+        # If the route has any children, they must recursively also remcompute their nexthops.
+        child_prefixes = self._routes.children(route.prefix)
+        self._recompute_children_nexthops(child_prefixes)
 
     def _recompute_children_nexthops(self, child_prefixes):
 
@@ -86,11 +99,10 @@ class Rib:
             child_route = self._routes[child_prefix]
 
             # Recompute the computed nexthops for the child route.
-            computed_nexthops = self._recompute_nexthops(child_route)
-            child_route.set_computed_nexthops(computed_nexthops)
+            self._recompute_nexthops(child_route)
 
             # Update the child route in the FIB accordingly.
-            self._fib.put_route(child_prefix, computed_nexthops)
+            self._fib.put_route(child_prefix, child_route.computed_nexthops)
 
             # Recursively visit all the child's children (i.e. grandchildren).
             grandchild_prefixes = self._routes.children(child_prefix)

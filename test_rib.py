@@ -224,18 +224,15 @@ def test_prop_delete_nexthop_one_level():
     # that has the reduced set of nexthops).
     rib.put_route("0.0.0.0/0", ["nh1", "nh3", "nh4"])
 
+    # The RIB must contain the following routes:
+    assert str(rib) == ("0.0.0.0/0 -> nh1, nh3, nh4\n"      # nh2 is gone
+                        "10.0.0.0/16 -> ~nh1\n"
+                        "10.1.0.0/16 -> ~nh4\n")
 
-
-    # # Delete the parent route from the RIB.
-    # rib.del_route("0.0.0.0/0")
-
-    # # The RIB must contain the following routes:
-    # assert str(rib) == ("10.0.0.0/16 -> ~nh1\n"
-    #                     "10.1.0.0/16 -> ~nh4\n")
-
-    # # The FIB must contain the following routes (note: no nexthops, so discard routes):
-    # assert str(fib) == ("10.0.0.0/16 -> \n"
-    #                     "10.1.0.0/16 -> \n")
+    # The FIB must contain the following routes:
+    assert str(fib) == ("0.0.0.0/0 -> nh1, nh3, nh4\n"      # nh2 is gone
+                        "10.0.0.0/16 -> nh3, nh4\n"         # computed nh2 is gone
+                        "10.1.0.0/16 -> nh1, nh3\n")        # computed nh2 is gone
 
     # # Delete both remaining child routes from the RIB.
     # rib.del_route("10.0.0.0/16")
