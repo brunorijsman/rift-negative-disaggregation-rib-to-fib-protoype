@@ -54,41 +54,41 @@ def test_prop_one_route_pos():
     fib = Fib()
     rib = Rib(fib)
 
-    # Install a single route with only positive nexthops in the RIB:
-    # 1.2.3.0/24 -> nh1, nh2
-    rib.put_route("1.2.3.0/24", ["nh1", "nh2"])
+    # Install one route into the RIB:
+    rib.put_route("1.2.3.0/24", ["nh1", "nh2"])     # A single route, positive nexthops
+
+    # The RIB must contain the following route:
     assert str(rib) == ("1.2.3.0/24 -> nh1, nh2\n")
 
-    # There should be a corresponding same route in the FIB:
-    # 1.2.3.0/24 -> nh1, nh2
+    # The FIB must contain the following route:
     assert str(fib) == ("1.2.3.0/24 -> nh1, nh2\n")
 
     # Delete the route from the RIB.
     rib.del_route("1.2.3.0/24")
+
+    # The RIB must be empty.
     assert str(rib) == ("")
 
-    # The corresponding route should be deleted from the FIB.
+    # The FIB must be empty.
     assert str(fib) == ("")
 
 def test_prop_parent_pos_child_pos():
 
-    # Add a parent aggregate and a child more specific, each with only positive next-hops
+    # Add a parent aggregate rioute and a child more specific route, each with only positive
+    # next-hops.
 
     fib = Fib()
     rib = Rib(fib)
 
-    # Install two routes into the RIB: one parent aggregate and a child more specific route that
-    # points to a different nexthop. We are only using positive nexthops.
-    # 1.2.0.0/16 -> nh1, nh2
-    # 1.2.3.0/24 -> nh3, nh4
-    rib.put_route("1.2.0.0/16", ["nh1", "nh2"])
-    rib.put_route("1.2.3.0/24", ["nh3", "nh4"])
+    # Install two routes into the RIB:
+    rib.put_route("1.2.0.0/16", ["nh1", "nh2"])     # Parent aggregate route, positive nexthops
+    rib.put_route("1.2.3.0/24", ["nh3", "nh4"])     # Child more specific route, positive nexthops
+
+    # The RIB must contain the following routes:
     assert str(rib) == ("1.2.0.0/16 -> nh1, nh2\n"
                         "1.2.3.0/24 -> nh3, nh4\n")
 
-    # There should be the corresponding same routes in the FIB:
-    # 1.2.0.0/16 -> nh1, nh2
-    # 1.2.3.0/24 -> nh3, nh4
+    # The FIB must contain the following routes:
     assert str(fib) == ("1.2.0.0/16 -> nh1, nh2\n"
                         "1.2.3.0/24 -> nh3, nh4\n")
 
@@ -101,19 +101,20 @@ def test_prop_parent_pos_child_pos():
 
     # Delete the child route from the RIB.
     rib.del_route("1.2.3.0/24")
+
+    # The RIB must be empty.
     assert str(rib) == ""
 
-    # The corresponding route should be deleted from the FIB.
+    # The FIB must be empty.
     assert str(fib) == ""
 
-def test_prop_parent_pos_child_neg():
+def test_prop_one_child():
 
-    # Add a parent aggregate with positive nexthops and a child with a negative nexthop
+    # Test slide 56 in Pascal's "negative disaggregation" presentation:
+    # Add a parent aggregate with positive nexthops and one child with a negative nexthop.
 
     fib = Fib()
     rib = Rib(fib)
-
-    # Adding the routes: slide 56 in Pascal's "negative disaggregation" presentation.
 
     # Install two routes into the RIB: one parent aggregate with four ECMP positive nexthops, and
     # one child more specific with one negative nexthop.
@@ -148,14 +149,13 @@ def test_prop_parent_pos_child_neg():
     # The corresponding route should be deleted from the FIB.
     assert str(fib) == ""
 
-def test_prop_parent_pos_two_children_neg():
+def test_prop_two_children():
 
-    # Add a parent aggregate with positive nexthops and two children with negative nexthops
+    # Test slide 57 in Pascal's "negative disaggregation" presentation:
+    # Add a parent aggregate with positive nexthops and two children with negative nexthops.
 
     fib = Fib()
     rib = Rib(fib)
-
-    # Adding the routes: slide 57 in Pascal's "negative disaggregation" presentation.
 
     # Install the following three routes into the RIB:
     # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
@@ -164,17 +164,13 @@ def test_prop_parent_pos_two_children_neg():
     rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])
     rib.put_route("10.0.0.0/16", [], ["nh1"])
     rib.put_route("10.1.0.0/16", [], ["nh4"])
+
+    # The RIB must contain the following routes:
     assert str(rib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
                         "10.0.0.0/16 -> ~nh1\n"
                         "10.1.0.0/16 -> ~nh4\n")
 
-    # The FIB should contain the following routes:
-    # (1) the same parent aggregate route.
-    # (2) the more specific child route, whose negative nexthop has been translated into
-    #     complementary positive nexthops.
-    # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
-    # 10.0.0.0/16 -> nh2, nh3, nh4
-    # 10.1.0.0/16 -> nh1, nh2, nh3
+    # The FIB must contain the following routes:
     assert str(fib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
                         "10.0.0.0/16 -> nh2, nh3, nh4\n"
                         "10.1.0.0/16 -> nh1, nh2, nh3\n")
@@ -182,11 +178,11 @@ def test_prop_parent_pos_two_children_neg():
     # Delete the parent route from the RIB.
     rib.del_route("0.0.0.0/0")
 
-    # The RIB should contain the following routes:
+    # The RIB must contain the following routes:
     assert str(rib) == ("10.0.0.0/16 -> ~nh1\n"
                         "10.1.0.0/16 -> ~nh4\n")
 
-    # The FIB should contain the following routes (note: no nexthops, so discard routes):
+    # The FIB must contain the following routes (note: no nexthops, so discard routes):
     assert str(fib) == ("10.0.0.0/16 -> \n"
                         "10.1.0.0/16 -> \n")
 
@@ -194,8 +190,63 @@ def test_prop_parent_pos_two_children_neg():
     rib.del_route("10.0.0.0/16")
     rib.del_route("10.1.0.0/16")
 
-    # The RIB should be empty.
+    # The RIB must be empty.
     assert str(rib) == ""
 
-    # The FIB should be empty.
+    # The FIB must be empty.
     assert str(fib) == ""
+
+def test_prop_delete_nexthop():
+
+    # Test slide 58 in Pascal's "negative disaggregation" presentation.
+
+    # Test slide 57 in Pascal's "negative disaggregation" presentation:
+    # Add a parent aggregate with positive nexthops and two children with negative nexthops.
+
+    fib = Fib()
+    rib = Rib(fib)
+
+    # Install the following three routes into the RIB:
+    # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
+    # 10.0.0.0/16 -> ~nh1
+    # 10.1.0.0/16 -> ~nh4
+    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])
+    rib.put_route("10.0.0.0/16", [], ["nh1"])
+    rib.put_route("10.1.0.0/16", [], ["nh4"])
+
+    # The RIB must contain the following routes:
+    assert str(rib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
+                        "10.0.0.0/16 -> ~nh1\n"
+                        "10.1.0.0/16 -> ~nh4\n")
+
+    # The FIB must contain the following routes:
+    assert str(fib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
+                        "10.0.0.0/16 -> nh2, nh3, nh4\n"
+                        "10.1.0.0/16 -> nh1, nh2, nh3\n")
+
+    # Delete nexthop nh2 from the parent route 0.0.0.0/0 (by replacing the route with a new one
+    # that has the reduced set of nexthops).
+    rib.put_route("0.0.0.0/0", ["nh1", "nh3", "nh4"])
+
+
+
+    # # Delete the parent route from the RIB.
+    # rib.del_route("0.0.0.0/0")
+
+    # # The RIB must contain the following routes:
+    # assert str(rib) == ("10.0.0.0/16 -> ~nh1\n"
+    #                     "10.1.0.0/16 -> ~nh4\n")
+
+    # # The FIB must contain the following routes (note: no nexthops, so discard routes):
+    # assert str(fib) == ("10.0.0.0/16 -> \n"
+    #                     "10.1.0.0/16 -> \n")
+
+    # # Delete both remaining child routes from the RIB.
+    # rib.del_route("10.0.0.0/16")
+    # rib.del_route("10.1.0.0/16")
+
+    # # The RIB must be empty.
+    # assert str(rib) == ""
+
+    # # The FIB must be empty.
+    # assert str(fib) == ""
