@@ -155,13 +155,10 @@ def test_prop_two_children():
     fib = Fib()
     rib = Rib(fib)
 
-    # Install the following three routes into the RIB:
-    # 0.0.0.0/0 -> nh1, nh2, nh3, nh4
-    # 10.0.0.0/16 -> ~nh1
-    # 10.1.0.0/16 -> ~nh4
-    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])
-    rib.put_route("10.0.0.0/16", [], ["nh1"])
-    rib.put_route("10.1.0.0/16", [], ["nh4"])
+    # Install the following routes into the RIB:
+    rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4"])    # Parent default route
+    rib.put_route("10.0.0.0/16", [], ["nh1"])                   # First child route, negative nh
+    rib.put_route("10.1.0.0/16", [], ["nh4"])                   # Second child route, negative nh
 
     # The RIB must contain the following routes:
     assert str(rib) == ("0.0.0.0/0 -> nh1, nh2, nh3, nh4\n"
