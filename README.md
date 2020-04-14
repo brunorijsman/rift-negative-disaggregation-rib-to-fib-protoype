@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype?branch=master)](https://travis-ci.org/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype)   [![Code Coverage](https://codecov.io/gh/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype/branch/master/graph/badge.svg)](https://codecov.io/gh/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype)
+[![Build Status](https://travis-ci.org/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype.svg?branch=master)](https://travis-ci.org/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype)   [![Code Coverage](https://codecov.io/gh/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype/branch/master/graph/badge.svg)](https://codecov.io/gh/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype)
 
 The [Routing In Fat Trees (RIFT)](https://datatracker.ietf.org/group/rift/about/) protocol
 supports a feature called "negative disaggregation".
@@ -73,4 +73,5 @@ disaggregation. ([Link to slides](https://datatracker.ietf.org/doc/slides-103-ri
 This repository contains a prototype implementation of the code to convert RIB routes into FIB
 routes, converting negative nexthops in the RIB into complementary positive nexthops in the FIB.
 
-Work is in progress to add the negative disaggregation feature to [RIFT-Python](https://github.com/brunorijsman/rift-python), the open source implementation of RIFT in Python.
+Work is in progress to add the negative disaggregation feature to [RIFT-Python](https://github.com/brunorijsman/rift-python),
+the open source implementation of RIFT in Python.
