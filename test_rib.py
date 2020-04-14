@@ -394,10 +394,7 @@ def test_prop_deep_nesting():
     rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4", "nh5"]) # Parent
     rib.put_route("1.0.0.0/8", [], ["nh1"])                         # Child
     rib.put_route("1.128.0.0/9", [], ["nh2"])                       # Grand child
-
-    print("*** PUT ROUTE 1.192.0.0/10 ***")
     rib.put_route("1.192.0.0/10", [], ["nh3"])                      # Grand-grand child
-
     rib.put_route("1.224.0.0/11", [], ["nh4"])                      # Grand-grand-grand child
     rib.put_route("1.240.0.0/12", [], ["nh5"])                      # Grand-grand-grand-grand child
 
@@ -416,8 +413,6 @@ def test_prop_deep_nesting():
                         "1.192.0.0/10 -> nh4, nh5\n"
                         "1.224.0.0/11 -> nh5\n"
                         "1.240.0.0/12 -> \n")
-
-    print("*** DELETING NH3 ***")
 
     # Delete nexthop nh3 from the parent route 0.0.0.0/0.
     rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh4", "nh5"])
@@ -445,6 +440,91 @@ def test_prop_deep_nesting():
     rib.del_route("1.192.0.0/10")
     rib.del_route("1.224.0.0/11")
     rib.del_route("1.240.0.0/12")
+
+    # The RIB must be empty.
+    assert str(rib) == ""
+
+    # The FIB must be empty.
+    assert str(fib) == ""
+
+def test_prop_nesting_with_siblings():
+
+    # Deep nesting of more specific routes using the following tree:
+    #
+    #   1.0.0.0/8 -> nh1, nh2, nh3, nh4, nh5, nh6, nh7
+    #    |
+    #    +--- 1.1.0.0/16 -> ~nh1
+    #    |     |
+    #    |     +--- 1.1.1.0/24 -> ~nh2
+    #    |     |
+    #    |     +--- 1.1.2.0/24 -> ~nh3
+    #    |
+    #    +--- 1.2.0.0/16 -> ~nh4
+    #          |
+    #          +--- 1.2.1.0/24 -> ~nh5
+    #          |
+    #          +--- 1.2.2.0/24 -> ~nh6
+
+
+    fib = Fib()
+    rib = Rib(fib)
+
+    # Install the following three routes into the RIB:
+    rib.put_route("1.0.0.0/8", ["nh1", "nh2", "nh3", "nh4", "nh5", "nh6", "nh7"])
+    rib.put_route("1.1.0.0/16", [], ["nh1"])
+    rib.put_route("1.1.1.0/24", [], ["nh2"])
+    rib.put_route("1.1.2.0/24", [], ["nh3"])
+    rib.put_route("1.2.0.0/16", [], ["nh4"])
+    rib.put_route("1.2.1.0/24", [], ["nh5"])
+    rib.put_route("1.2.2.0/24", [], ["nh6"])
+
+    # The RIB must contain the following routes:
+    assert str(rib) == ("1.0.0.0/8 -> nh1, nh2, nh3, nh4, nh5, nh6, nh7\n"
+                        "1.1.0.0/16 -> ~nh1\n"
+                        "1.1.1.0/24 -> ~nh2\n"
+                        "1.1.2.0/24 -> ~nh3\n"
+                        "1.2.0.0/16 -> ~nh4\n"
+                        "1.2.1.0/24 -> ~nh5\n"
+                        "1.2.2.0/24 -> ~nh6\n")
+
+    # The FIB must contain the following routes:
+    assert str(fib) == ("1.0.0.0/8 -> nh1, nh2, nh3, nh4, nh5, nh6, nh7\n"
+                        "1.1.0.0/16 -> nh2, nh3, nh4, nh5, nh6, nh7\n"
+                        "1.1.1.0/24 -> nh3, nh4, nh5, nh6, nh7\n"
+                        "1.1.2.0/24 -> nh2, nh4, nh5, nh6, nh7\n"
+                        "1.2.0.0/16 -> nh1, nh2, nh3, nh5, nh6, nh7\n"
+                        "1.2.1.0/24 -> nh1, nh2, nh3, nh6, nh7\n"
+                        "1.2.2.0/24 -> nh1, nh2, nh3, nh5, nh7\n")
+
+    # Delete nexthop nh3 from the parent route 0.0.0.0/0.
+    rib.put_route("1.0.0.0/8", ["nh1", "nh2", "nh4", "nh5", "nh6", "nh7"])
+
+    # The RIB must contain the following routes:
+    assert str(rib) == ("1.0.0.0/8 -> nh1, nh2, nh4, nh5, nh6, nh7\n"
+                        "1.1.0.0/16 -> ~nh1\n"
+                        "1.1.1.0/24 -> ~nh2\n"
+                        "1.1.2.0/24 -> ~nh3\n"
+                        "1.2.0.0/16 -> ~nh4\n"
+                        "1.2.1.0/24 -> ~nh5\n"
+                        "1.2.2.0/24 -> ~nh6\n")
+
+    # The FIB must contain the following routes:
+    assert str(fib) == ("1.0.0.0/8 -> nh1, nh2, nh4, nh5, nh6, nh7\n"
+                        "1.1.0.0/16 -> nh2, nh4, nh5, nh6, nh7\n"
+                        "1.1.1.0/24 -> nh4, nh5, nh6, nh7\n"
+                        "1.1.2.0/24 -> nh2, nh4, nh5, nh6, nh7\n"
+                        "1.2.0.0/16 -> nh1, nh2, nh5, nh6, nh7\n"
+                        "1.2.1.0/24 -> nh1, nh2, nh6, nh7\n"
+                        "1.2.2.0/24 -> nh1, nh2, nh5, nh7\n")
+
+    # Delete all routes from the RIB.
+    rib.del_route("1.0.0.0/8")
+    rib.del_route("1.1.0.0/16")
+    rib.del_route("1.1.1.0/24")
+    rib.del_route("1.1.2.0/24")
+    rib.del_route("1.2.0.0/16")
+    rib.del_route("1.2.1.0/24")
+    rib.del_route("1.2.2.0/24")
 
     # The RIB must be empty.
     assert str(rib) == ""
