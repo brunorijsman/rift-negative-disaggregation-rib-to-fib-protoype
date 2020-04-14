@@ -464,18 +464,19 @@ def test_prop_nesting_with_siblings():
     #          +--- 1.2.1.0/24 -> ~nh5
     #          |
     #          +--- 1.2.2.0/24 -> ~nh6
-
+    #
+    # Note: we add the routes in a random order
 
     fib = Fib()
     rib = Rib(fib)
 
     # Install the following three routes into the RIB:
-    rib.put_route("1.0.0.0/8", ["nh1", "nh2", "nh3", "nh4", "nh5", "nh6", "nh7"])
     rib.put_route("1.1.0.0/16", [], ["nh1"])
-    rib.put_route("1.1.1.0/24", [], ["nh2"])
     rib.put_route("1.1.2.0/24", [], ["nh3"])
+    rib.put_route("1.1.1.0/24", [], ["nh2"])
     rib.put_route("1.2.0.0/16", [], ["nh4"])
     rib.put_route("1.2.1.0/24", [], ["nh5"])
+    rib.put_route("1.0.0.0/8", ["nh1", "nh2", "nh3", "nh4", "nh5", "nh6", "nh7"])
     rib.put_route("1.2.2.0/24", [], ["nh6"])
 
     # The RIB must contain the following routes:
