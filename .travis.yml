@@ -6,6 +6,6 @@ install:
   - source env/bin/activate
   - pip install -r requirements.txt
 script:
-  - pytest
+  - pylint *.py && pytest --cov
 after_success:
   - codecov
