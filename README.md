@@ -73,5 +73,4 @@ disaggregation. ([Link to slides](https://datatracker.ietf.org/doc/slides-103-ri
 This repository contains a prototype implementation of the code to convert RIB routes into FIB
 routes, converting negative nexthops in the RIB into complementary positive nexthops in the FIB.
 
-Work is in progress to add the negative disaggregation feature to [RIFT-Python](https://github.com/brunorijsman/rift-python),
-the open source implementation of RIFT in Python.
+Work is in progress to add the negative disaggregation feature to [RIFT-Python](https://github.com/brunorijsman/rift-python), the open source implementation of RIFT in Python.
