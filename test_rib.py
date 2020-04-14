@@ -394,7 +394,10 @@ def test_prop_deep_nesting():
     rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh3", "nh4", "nh5"]) # Parent
     rib.put_route("1.0.0.0/8", [], ["nh1"])                         # Child
     rib.put_route("1.128.0.0/9", [], ["nh2"])                       # Grand child
+
+    print("*** PUT ROUTE 1.192.0.0/10 ***")
     rib.put_route("1.192.0.0/10", [], ["nh3"])                      # Grand-grand child
+
     rib.put_route("1.224.0.0/11", [], ["nh4"])                      # Grand-grand-grand child
     rib.put_route("1.240.0.0/12", [], ["nh5"])                      # Grand-grand-grand-grand child
 
@@ -413,6 +416,8 @@ def test_prop_deep_nesting():
                         "1.192.0.0/10 -> nh4, nh5\n"
                         "1.224.0.0/11 -> nh5\n"
                         "1.240.0.0/12 -> \n")
+
+    print("*** DELETING NH3 ***")
 
     # Delete nexthop nh3 from the parent route 0.0.0.0/0.
     rib.put_route("0.0.0.0/0", ["nh1", "nh2", "nh4", "nh5"])
