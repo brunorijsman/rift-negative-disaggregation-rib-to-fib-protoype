@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype?branch=master)](https://travis-ci.org/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype)   [![Code Coverage](https://codecov.io/gh/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype/branch/master/graph/badge.svg)](https://codecov.io/gh/brunorijsman/rift-negative-disaggregation-rib-to-fib-protoype)
+
 The [Routing In Fat Trees (RIFT)](https://datatracker.ietf.org/group/rift/about/) protocol
 supports a feature called "negative disaggregation".
 
