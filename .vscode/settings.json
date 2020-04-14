@@ -1,9 +1,14 @@
 {
     "python.pythonPath": "env/bin/python3.7",
     "cSpell.words": [
+        "Rijsman",
+        "Thubert's",
+        "codecov",
+        "disaggregate",
         "pylint",
         "pytest",
-        "pytricia"
+        "pytricia",
+        "virtualenv"
     ],
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
